@@ -14,6 +14,8 @@
   --muted: #5c6f82;
   --card: #ffffff;
   --border: #e2e8f0;
+  --page-padding: clamp(1.2rem, 5vw, 3rem);
+  --nav-height: 80px;
 
   font-family: 'Sora', 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;

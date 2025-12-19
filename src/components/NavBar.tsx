@@ -3,6 +3,8 @@ import logo from '../assets/falsebayocean-logo.jpeg'
 
 const navLinks = [
   { label: 'Home', to: '/' },
+  { label: 'Adventures', to: '/adventures' },
+  { label: 'FAQs', to: '/faq' },
   { label: 'Contact', to: '/contact' },
 ]
 
