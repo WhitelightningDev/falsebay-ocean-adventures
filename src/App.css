@@ -95,6 +95,28 @@ main {
   transform: translateY(-1px);
 }
 
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 4px;
+}
+
 .section {
   position: relative;
   padding: 3.8rem var(--page-padding);
@@ -944,14 +966,39 @@ main {
 
 @media (max-width: 900px) {
   .nav-shell {
-    position: static;
+    position: sticky;
     flex-wrap: wrap;
-    border-radius: 20px;
+    border-radius: 0;
+    gap: 0.8rem;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
   }
 
   .nav-links {
-    flex: 1;
-    justify-content: center;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    gap: 0.35rem;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    width: 100%;
+    display: block;
+  }
+
+  .nav-cta {
+    width: 100%;
+    text-align: center;
   }
 
   .booking,
@@ -968,15 +1015,6 @@ main {
 @media (max-width: 640px) {
   main {
     padding: 0 1rem 3rem;
-  }
-
-  .nav-shell {
-    gap: 0.6rem;
-  }
-
-  .nav-links {
-    width: 100%;
-    justify-content: space-between;
   }
 
   .cta-row {
