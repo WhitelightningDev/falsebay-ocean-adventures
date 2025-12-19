@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react'
-import { MapPin, Phone, Send, Waves } from 'lucide-react'
+import { Instagram, Mail, MapPin, Phone, Send, Waves } from 'lucide-react'
 
 function Contact() {
   const [form, setForm] = useState({
@@ -31,9 +31,8 @@ function Contact() {
         <div className="eyebrow">Contact</div>
         <h2>Beyond the shore, adventure awaits</h2>
         <p className="muted">
-          Family fun, scenic cruises and ocean safaris, plus jet ski thrills for
-          the brave at heart. Call or visit us in Gordon&apos;s Bay to plan your
-          day on the water.
+          Family fun, scenic cruises and ocean safaris, plus jet ski thrills for the brave at heart.
+          Call, message, email, or visit us in Gordon&apos;s Bay to plan your day on the water.
         </p>
         <div className="contact-grid">
           <div className="contact-card">
@@ -42,20 +41,67 @@ function Contact() {
               <p className="label">Call</p>
             </div>
             <a href="tel:+27662040213">+27 (0)66 204 0213</a>
+            <p className="muted">
+              Call or WhatsApp for bookings and quick questions.
+            </p>
+          </div>
+          <div className="contact-card">
+            <div className="contact-chip">
+              <Mail size={18} />
+              <p className="label">Email</p>
+            </div>
+            <a href="mailto:hello@falsebayocean.com">hello@falsebayocean.com</a>
+            <p className="muted">Share your dates, group size, and preferred adventure.</p>
           </div>
           <div className="contact-card">
             <div className="contact-chip">
               <MapPin size={18} />
               <p className="label">Visit</p>
             </div>
-            <p className="muted">Harbour Island, Gordon&apos;s Bay, Cape Town</p>
+            <p className="muted">Gordon&apos;s Bay Harbour, Cape Town</p>
+            <a
+              className="adventure-action"
+              href="https://maps.google.com/?q=Gordon%27s%20Bay%20Harbour"
+              target="_blank"
+              rel="noreferrer"
+            >
+              View on map
+            </a>
           </div>
           <div className="contact-card">
             <div className="contact-chip">
-              <Waves size={18} />
-              <p className="label">What we do</p>
+              <Instagram size={18} />
+              <p className="label">Social</p>
             </div>
-            <p className="muted">Boat charters, jet ski hire, and ocean safaris on False Bay.</p>
+            <p className="muted">
+              Follow for bay conditions, new routes, and offers.
+            </p>
+            <a href="https://instagram.com/falsebayoceanadventures" target="_blank" rel="noreferrer">
+              Instagram
+            </a>
+            <a href="https://facebook.com/falsebayoceanadventures" target="_blank" rel="noreferrer">
+              Facebook
+            </a>
+          </div>
+        </div>
+        <div className="location-block">
+          <h3>Where to meet us in False Bay</h3>
+          <p className="muted">
+            We launch from Gordon&apos;s Bay Harbour, close to Bikini Beach. Arrive a few minutes early for
+            briefing and gear.
+          </p>
+          <div
+            className="map-embed"
+            role="region"
+            aria-label="Map to False Bay Ocean Adventures launch point at Gordon's Bay Harbour"
+          >
+            <iframe
+              title="Map: Gordon's Bay Harbour"
+              src="https://maps.google.com/maps?q=Gordon%27s%20Bay%20Harbour&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
         </div>
         <form className="contact-form" onSubmit={handleSubmit}>
