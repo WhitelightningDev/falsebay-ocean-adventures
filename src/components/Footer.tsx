@@ -30,7 +30,7 @@ function Footer() {
               Facebook
             </a>
           </p>
-          <p className="footer-item">Open daily, weather permitting (peak Nov–Apr)</p>
+          <p className="footer-item">Open daily 08:00 - 18:00, weather permitting (peak Nov - Apr)</p>
         </div>
       </div>
     </footer>
