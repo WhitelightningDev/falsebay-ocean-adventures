@@ -1,39 +1,53 @@
 import { type FormEvent, useState } from 'react'
-import { Instagram, Mail, MapPin, Phone, Send, Waves } from 'lucide-react'
+import { Clock3, Instagram, Mail, MapPin, Phone, Send, Waves } from 'lucide-react'
+import contactHeroImg from '../assets/fboa-boat.jpg'
 
 function Contact() {
   const [form, setForm] = useState({
-    service: 'Jet ski hire',
+    enquiryType: 'Booking',
     name: '',
-    surname: '',
     email: '',
-    notes: '',
+    phone: '',
+    message: '',
   })
   const [status, setStatus] = useState<string | null>(null)
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!form.name || !form.surname || !form.email) {
-      setStatus('Please fill in your name, surname, and email.')
+    if (!form.name || !form.email || !form.phone) {
+      setStatus('Please fill in your name, email, and phone.')
       return
     }
-    const subject = encodeURIComponent(`Enquiry: ${form.service}`)
+    const subject = encodeURIComponent(`Enquiry: ${form.enquiryType}`)
     const body = encodeURIComponent(
-      `Service: ${form.service}\nName: ${form.name} ${form.surname}\nEmail: ${form.email}\nNotes: ${form.notes || 'N/A'}`,
+      `Enquiry type: ${form.enquiryType}\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nMessage: ${form.message || 'N/A'}`,
     )
     window.location.href = `mailto:hello@falsebayocean.com?subject=${subject}&body=${body}`
-    setStatus('Thanks! We opened your email app with the enquiry details.')
+    setStatus("Thanks! We'll get back to you within 24 hours.")
   }
 
   return (
     <section id="contact" className="section contact">
       <div>
-        <div className="eyebrow">Contact</div>
-        <h2>Beyond the shore, adventure awaits</h2>
+        <div className="eyebrow">Contact Us</div>
+        <h1 className="contact-title">Get in touch</h1>
         <p className="muted">
-          Family fun, scenic cruises and ocean safaris, plus jet ski thrills for the brave at heart.
-          Call, message, email, or visit us in Gordon&apos;s Bay to plan your day on the water.
+          Bold phone and email up top so you can reach us fast. Call, message, email, or visit us in Gordon&apos;s Bay to plan your day on the water.
         </p>
+        <div className="contact-highlight">
+          <a href="tel:+27662040213" className="highlight-link">+27 (0)66 204 0213</a>
+          <a href="mailto:hello@falsebayocean.com" className="highlight-link">hello@falsebayocean.com</a>
+          <a href="https://wa.me/27662040213" className="highlight-link whatsapp" target="_blank" rel="noreferrer">
+            WhatsApp us
+          </a>
+        </div>
+        <div className="contact-hero">
+          <img src={contactHeroImg} alt="Boat at Gordon's Bay harbour ready to launch" />
+          <div className="contact-hero-copy">
+            <p className="label">Meeting point</p>
+            <p className="muted">Gordon&apos;s Bay Harbour, near Bikini Beach. Look for our team at the launch site.</p>
+          </div>
+        </div>
         <div className="contact-grid">
           <div className="contact-card">
             <div className="contact-chip">
@@ -67,6 +81,14 @@ function Contact() {
             >
               View on map
             </a>
+          </div>
+          <div className="contact-card">
+            <div className="contact-chip">
+              <Clock3 size={18} />
+              <p className="label">Hours</p>
+            </div>
+            <p className="muted">Mon - Sun: 08:00 - 18:00</p>
+            <p className="muted">Weather permitting; peak season Nov - Apr.</p>
           </div>
           <div className="contact-card">
             <div className="contact-chip">
@@ -109,13 +131,13 @@ function Contact() {
             <label>
               <span>What do you want to enquire about?</span>
               <select
-                value={form.service}
-                onChange={(e) => setForm({ ...form, service: e.target.value })}
+                value={form.enquiryType}
+                onChange={(e) => setForm({ ...form, enquiryType: e.target.value })}
               >
-                <option>Jet ski hire</option>
-                <option>Boat rides</option>
-                <option>Ocean safaris</option>
-                <option>Team building</option>
+                <option>Booking</option>
+                <option>Questions</option>
+                <option>Safety info</option>
+                <option>Custom event</option>
               </select>
             </label>
             <label>
@@ -129,16 +151,6 @@ function Contact() {
               />
             </label>
             <label>
-              <span>Surname</span>
-              <input
-                required
-                type="text"
-                value={form.surname}
-                onChange={(e) => setForm({ ...form, surname: e.target.value })}
-                placeholder="Your surname"
-              />
-            </label>
-            <label>
               <span>Email</span>
               <input
                 required
@@ -148,12 +160,23 @@ function Contact() {
                 placeholder="you@example.com"
               />
             </label>
+            <label>
+              <span>Phone / WhatsApp</span>
+              <input
+                required
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="+27 82 123 4567"
+              />
+            </label>
           </div>
           <label>
-            <span>Additional notes</span>
+            <span>Message</span>
             <textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              required
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
               rows={4}
               placeholder="Tell us your dates, group size, and any extras."
             />
@@ -162,6 +185,7 @@ function Contact() {
             <Send size={18} />
             Submit enquiry
           </button>
+          <p className="form-status">We reply within 24 hours.</p>
           {status ? <p className="form-status">{status}</p> : null}
         </form>
       </div>
