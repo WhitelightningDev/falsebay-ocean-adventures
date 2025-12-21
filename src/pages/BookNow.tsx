@@ -93,6 +93,10 @@ function BookNow() {
 
   const total = calcTotal()
   const instalment = total ? (total / 4).toFixed(0) : '0'
+  const isAdventureValid = Boolean(selectedAdventure?.slug)
+  const isDateTimeValid = Boolean(selectedDate && selectedTime)
+  const isGuestValid = Boolean(guestForm.fullName && guestForm.email && guestForm.phone && guestForm.guests)
+  const canSubmit = isAdventureValid && isDateTimeValid && isGuestValid && !submitted
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -131,6 +135,16 @@ function BookNow() {
     setCurrentStep(2)
   }
 
+  const handleStepClick = (stepNumber: number) => {
+    if (stepNumber < currentStep) {
+      setCurrentStep(stepNumber)
+    } else if (stepNumber === currentStep + 1) {
+      if (validateStep(currentStep)) {
+        setCurrentStep(stepNumber)
+      }
+    }
+  }
+
   const handleNextFromDateTime = () => {
     if (validateStep(2)) setCurrentStep(3)
   }
@@ -167,262 +181,303 @@ function BookNow() {
           Pick your experience, choose a time, and secure your spot online. The
           fastest way to the water in Gordon&apos;s Bay.
         </p>
-        <div className="progress">
-          {steps.map((step) => (
-            <div key={step.number} className={`progress-step ${currentStep >= step.number ? 'current' : ''}`}>
-              <div className="progress-dot" />
-              <p className="label">
-                Step {step.number} - {step.title}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="steps">
-          {steps.map(({ number, title, description }) => (
-            <div className={`step ${currentStep === number ? 'active' : ''}`} key={title}>
-              <span className="badge">{number}</span>
-              <div>
-                <p className="label">{title}</p>
-                <p className="muted">{description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="booking-subsection">
-          <h3>Step 1 - Choose Adventure</h3>
-          <p className="muted">Select an option to move to date and time.</p>
-          <div className="book-adventure-grid">
-            {adventures.map((adventure) => (
-              <article
-                key={adventure.slug}
-                className={`book-adventure-card ${selectedAdventure.slug === adventure.slug ? 'selected' : ''}`}
+        <div className="stepper">
+          {steps.map((step) => {
+            const status = currentStep === step.number ? 'active' : currentStep > step.number ? 'complete' : 'upcoming'
+            return (
+              <button
+                type="button"
+                key={step.number}
+                className={`stepper-item ${status}`}
+                onClick={() => handleStepClick(step.number)}
+                disabled={status === 'upcoming'}
               >
-                <div className="book-card-header">
-                  <h4>{adventure.name}</h4>
-                  <p className="label">{adventure.duration}</p>
-                </div>
-                <p className="muted">{adventure.summary}</p>
-                <p className="label">{adventure.price}</p>
-                <button
-                  type="button"
-                  className="button primary"
-                  onClick={() => handleAdventureSelect(adventure)}
-                >
-                  Select
-                </button>
-              </article>
-            ))}
-          </div>
-          {errors.adventure ? <p className="form-status error-text">{errors.adventure}</p> : null}
+                <span className="stepper-circle">
+                  {status === 'complete' ? '✓' : step.number}
+                </span>
+                <span className="stepper-label">{step.title}</span>
+              </button>
+            )
+          })}
         </div>
-        <div className="booking-subsection">
-          <h3>Step 2 - Date &amp; Time</h3>
-          <p className="muted">
-            Selected: <strong>{selectedAdventure.name}</strong>. Share your preferred slot (sunrise, mid-day, sunset).
-            We will confirm the closest available time.
-          </p>
-          <div className="date-time-picker">
-            <div className="date-picker">
-              <label className="label" htmlFor="date">
-                Choose your date
-              </label>
-              <input
-                id="date"
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-              {errors.date ? <p className="form-status error-text">{errors.date}</p> : null}
-            </div>
-            <div className="time-picker">
-              <p className="label">Pick a time slot</p>
-              <div className="time-grid">
-                {['09:00', '10:30', '12:00', '14:00', '16:30'].map((time) => (
+
+        {currentStep === 1 && (
+          <div className="booking-subsection">
+            <h3>Step 1 - Choose Adventure</h3>
+            <p className="muted">Select an option to move to date and time.</p>
+            <div className="book-adventure-grid">
+              {adventures.map((adventure) => (
+                <article
+                  key={adventure.slug}
+                  className={`book-adventure-card ${selectedAdventure.slug === adventure.slug ? 'selected' : ''}`}
+                >
+                  <div className="book-card-header">
+                    <h4>{adventure.name}</h4>
+                    <p className="label">{adventure.duration}</p>
+                  </div>
+                  <p className="muted">{adventure.summary}</p>
+                  <p className="label">{adventure.price}</p>
                   <button
-                    key={time}
                     type="button"
-                    className={`time-slot ${selectedTime === time ? 'selected' : ''}`}
-                    onClick={() => setSelectedTime(time)}
+                    className="button primary"
+                    onClick={() => handleAdventureSelect(adventure)}
                   >
-                    {time}
+                    Select
                   </button>
-                ))}
-              </div>
-              {errors.time ? <p className="form-status error-text">{errors.time}</p> : null}
-              <p className="muted">
-                Times may shift slightly based on weather and sea conditions - we&apos;ll confirm via WhatsApp or email.
-              </p>
+                </article>
+              ))}
             </div>
-            <div className="section-cta">
+            {errors.adventure ? <p className="form-status error-text">{errors.adventure}</p> : null}
+            <div className="wizard-nav">
+              <span />
+              <button className="button primary" type="button" onClick={() => {
+                if (validateStep(1)) setCurrentStep(2)
+              }}>
+                Next: Date &amp; Time
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 2 && (
+          <div className="booking-subsection">
+            <h3>Step 2 - Date &amp; Time</h3>
+            <p className="muted">
+              Selected: <strong>{selectedAdventure.name}</strong>. Share your preferred slot (sunrise, mid-day, sunset).
+              We will confirm the closest available time.
+            </p>
+            <div className="date-time-picker">
+              <div className="date-picker">
+                <label className="label" htmlFor="date">
+                  Choose your date
+                </label>
+                <input
+                  id="date"
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => {
+                    setSelectedDate(e.target.value)
+                    setErrors((prev) => ({ ...prev, date: '' }))
+                  }}
+                />
+                {errors.date ? <p className="form-status error-text">{errors.date}</p> : null}
+              </div>
+              <div className="time-picker">
+                <p className="label">Pick a time slot</p>
+                <div className="time-grid">
+                  {['09:00', '10:30', '12:00', '14:00', '16:30'].map((time) => (
+                    <button
+                      key={time}
+                      type="button"
+                      className={`time-slot ${selectedTime === time ? 'selected' : ''}`}
+                      onClick={() => {
+                        setSelectedTime(time)
+                        setErrors((prev) => ({ ...prev, time: '' }))
+                      }}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+                {errors.time ? <p className="form-status error-text">{errors.time}</p> : null}
+                <p className="muted">
+                  Times may shift slightly based on weather and sea conditions - we&apos;ll confirm via WhatsApp or email.
+                </p>
+              </div>
+            </div>
+            <div className="wizard-nav">
+              <button className="button ghost" type="button" onClick={() => setCurrentStep(1)}>
+                Back
+              </button>
               <button
                 className="button primary"
                 type="button"
                 disabled={!selectedDate || !selectedTime}
                 onClick={handleNextFromDateTime}
               >
-                Next: Guests &amp; Details
+                Next step
               </button>
             </div>
           </div>
-        </div>
-        <div className="booking-subsection">
-          <h3>Step 3 - Guests &amp; Details</h3>
-          <p className="muted">Add your group size and any extras (snacks, drinks, photo support).</p>
-          <div className="guest-form">
-            <div className="guest-grid">
+        )}
+
+        {currentStep === 3 && (
+          <div className="booking-subsection">
+            <h3>Step 3 - Guests &amp; Details</h3>
+            <p className="muted">Add your group size and any extras (snacks, drinks, photo support).</p>
+            <div className="guest-form">
+              <div className="guest-grid">
+                <label>
+                  Full name*
+                  <input
+                    required
+                    type="text"
+                    value={guestForm.fullName}
+                    onChange={(e) => {
+                      setGuestForm({ ...guestForm, fullName: e.target.value })
+                      setErrors((prev) => ({ ...prev, fullName: '' }))
+                    }}
+                    placeholder="Your full name"
+                  />
+                  {errors.fullName ? <p className="form-status error-text">{errors.fullName}</p> : null}
+                </label>
+                <label>
+                  Email address*
+                  <input
+                    required
+                    type="email"
+                    value={guestForm.email}
+                    onChange={(e) => {
+                      setGuestForm({ ...guestForm, email: e.target.value })
+                      setErrors((prev) => ({ ...prev, email: '' }))
+                    }}
+                    placeholder="you@example.com"
+                  />
+                  {errors.email ? <p className="form-status error-text">{errors.email}</p> : null}
+                </label>
+                <label>
+                  Mobile / WhatsApp*
+                  <input
+                    required
+                    type="tel"
+                    value={guestForm.phone}
+                    onChange={(e) => {
+                      setGuestForm({ ...guestForm, phone: e.target.value })
+                      setErrors((prev) => ({ ...prev, phone: '' }))
+                    }}
+                    placeholder="+27 82 123 4567"
+                  />
+                  {errors.phone ? <p className="form-status error-text">{errors.phone}</p> : null}
+                </label>
+                <label>
+                  Number of guests / riders*
+                  <input
+                    required
+                    type="number"
+                    min={1}
+                    value={guestForm.guests}
+                    onChange={(e) => {
+                      setGuestForm({ ...guestForm, guests: e.target.value })
+                      setErrors((prev) => ({ ...prev, guests: '' }))
+                    }}
+                    placeholder="4"
+                  />
+                  {errors.guests ? <p className="form-status error-text">{errors.guests}</p> : null}
+                </label>
+              </div>
               <label>
-                Full name*
-                <input
-                  required
-                  type="text"
-                  value={guestForm.fullName}
-                  onChange={(e) => setGuestForm({ ...guestForm, fullName: e.target.value })}
-                  placeholder="Your full name"
+                Special requests (optional)
+                <textarea
+                  value={guestForm.notes}
+                  onChange={(e) => setGuestForm({ ...guestForm, notes: e.target.value })}
+                  rows={3}
+                  placeholder="Any dietary needs, celebrations, or other notes?"
                 />
-                {errors.fullName ? <p className="form-status error-text">{errors.fullName}</p> : null}
-              </label>
-              <label>
-                Email address*
-                <input
-                  required
-                  type="email"
-                  value={guestForm.email}
-                  onChange={(e) => setGuestForm({ ...guestForm, email: e.target.value })}
-                  placeholder="you@example.com"
-                />
-                {errors.email ? <p className="form-status error-text">{errors.email}</p> : null}
-              </label>
-              <label>
-                Mobile / WhatsApp*
-                <input
-                  required
-                  type="tel"
-                  value={guestForm.phone}
-                  onChange={(e) => setGuestForm({ ...guestForm, phone: e.target.value })}
-                  placeholder="+27 82 123 4567"
-                />
-                {errors.phone ? <p className="form-status error-text">{errors.phone}</p> : null}
-              </label>
-              <label>
-                Number of guests / riders*
-                <input
-                  required
-                  type="number"
-                  min={1}
-                  value={guestForm.guests}
-                  onChange={(e) => setGuestForm({ ...guestForm, guests: e.target.value })}
-                  placeholder="4"
-                />
-                {errors.guests ? <p className="form-status error-text">{errors.guests}</p> : null}
               </label>
             </div>
-            <label>
-              Special requests (optional)
-              <textarea
-                value={guestForm.notes}
-                onChange={(e) => setGuestForm({ ...guestForm, notes: e.target.value })}
-                rows={3}
-                placeholder="Any dietary needs, celebrations, or other notes?"
-              />
-            </label>
-          </div>
-          <div className="booking-subsection">
-            <h4>Extras / Add-ons</h4>
-            <p className="muted">Add what you need to make it special.</p>
-            <div className="extras-grid">
-              {extrasOptions.map((extra) => {
-                const state = extras[extra.key]
-                return (
-                  <label key={extra.key} className={`extra-card ${state?.selected ? 'selected' : ''}`}>
-                    <div>
-                      <p className="label">{extra.label}</p>
-                      <p className="muted">{extra.price}</p>
-                    </div>
-                    <div className="extra-controls">
-                      <input
-                        type="checkbox"
-                        checked={state?.selected || false}
-                        onChange={(e) =>
-                          setExtras({
-                            ...extras,
-                            [extra.key]: { selected: e.target.checked, quantity: state?.quantity || 1 },
-                          })
-                        }
-                      />
-                      {extra.quantity ? (
+            <div className="booking-subsection">
+              <h4>Extras / Add-ons</h4>
+              <p className="muted">Add what you need to make it special.</p>
+              <div className="extras-grid">
+                {extrasOptions.map((extra) => {
+                  const state = extras[extra.key]
+                  return (
+                    <label key={extra.key} className={`extra-card ${state?.selected ? 'selected' : ''}`}>
+                      <div>
+                        <p className="label">{extra.label}</p>
+                        <p className="muted">{extra.price}</p>
+                      </div>
+                      <div className="extra-controls">
                         <input
-                          type="number"
-                          min={1}
-                          value={state?.quantity || 1}
+                          type="checkbox"
+                          checked={state?.selected || false}
                           onChange={(e) =>
                             setExtras({
                               ...extras,
-                              [extra.key]: {
-                                selected: state?.selected || false,
-                                quantity: Math.max(1, Number(e.target.value) || 1),
-                              },
+                              [extra.key]: { selected: e.target.checked, quantity: state?.quantity || 1 },
                             })
                           }
                         />
-                      ) : null}
-                    </div>
-                  </label>
-                )
-              })}
-            </div>
-          </div>
-          <div className="section-cta">
-            <button
-              className="button primary"
-              type="button"
-              onClick={handleNextFromGuests}
-            >
-              Next: Review &amp; Payment
-            </button>
-          </div>
-        </div>
-        <div className="booking-subsection">
-          <h3>Step 4 - Review &amp; Payment</h3>
-          <p className="muted">We will send a confirmation with payment options to secure your spot.</p>
-          {submitted ? (
-            <div className="summary-card success-card">
-              <p className="label">Confirmation</p>
-              <p className="muted">
-                Thanks, your booking details have been captured. We&apos;ll complete payment and final confirmation once
-                Payflex is connected.
-              </p>
-              <div className="summary-line">
-                <p className="label">Adventure</p>
-                <p className="muted">{selectedAdventure.name}</p>
-              </div>
-              <div className="summary-line">
-                <p className="label">Date &amp; time</p>
-                <p className="muted">
-                  {selectedDate || 'N/A'} {selectedTime ? `- ${selectedTime}` : ''}
-                </p>
-              </div>
-              <div className="summary-line">
-                <p className="label">Guests</p>
-                <p className="muted">{guestForm.guests || 'N/A'}</p>
-              </div>
-              <div className="summary-line">
-                <p className="label">Extras</p>
-                <p className="muted">
-                  {extrasOptions
-                    .filter((extra) => extras[extra.key]?.selected)
-                    .map((extra) => `${extra.label}${extra.quantity ? ` x${extras[extra.key].quantity}` : ''}`)
-                    .join(', ') || 'None'}
-                </p>
+                        {extra.quantity ? (
+                          <input
+                            type="number"
+                            min={1}
+                            value={state?.quantity || 1}
+                            onChange={(e) =>
+                              setExtras({
+                                ...extras,
+                                [extra.key]: {
+                                  selected: state?.selected || false,
+                                  quantity: Math.max(1, Number(e.target.value) || 1),
+                                },
+                              })
+                            }
+                          />
+                        ) : null}
+                      </div>
+                    </label>
+                  )
+                })}
               </div>
             </div>
-          ) : (
-            <div className="section-cta">
-              <button className="button primary" type="button" onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'Processing...' : 'Confirm & Pay with Payflex'}
+            <div className="wizard-nav">
+              <button className="button ghost" type="button" onClick={() => setCurrentStep(2)}>
+                Back
+              </button>
+              <button className="button primary" type="button" onClick={handleNextFromGuests}>
+                Next: Review &amp; Payment
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {currentStep === 4 && (
+          <div className="booking-subsection">
+            <h3>Step 4 - Review &amp; Payment</h3>
+            <p className="muted">We will send a confirmation with payment options to secure your spot.</p>
+            {submitted ? (
+              <div className="summary-card success-card">
+                <p className="label">Confirmation</p>
+                <p className="muted">
+                  Thanks, your booking details have been captured. We&apos;ll complete payment and final confirmation once
+                  Payflex is connected.
+                </p>
+                <div className="summary-line">
+                  <p className="label">Adventure</p>
+                  <p className="muted">{selectedAdventure.name}</p>
+                </div>
+                <div className="summary-line">
+                  <p className="label">Date &amp; time</p>
+                  <p className="muted">
+                    {selectedDate || 'N/A'} {selectedTime ? `- ${selectedTime}` : ''}
+                  </p>
+                </div>
+                <div className="summary-line">
+                  <p className="label">Guests</p>
+                  <p className="muted">{guestForm.guests || 'N/A'}</p>
+                </div>
+                <div className="summary-line">
+                  <p className="label">Extras</p>
+                  <p className="muted">
+                    {extrasOptions
+                      .filter((extra) => extras[extra.key]?.selected)
+                      .map((extra) => `${extra.label}${extra.quantity ? ` x${extras[extra.key].quantity}` : ''}`)
+                      .join(', ') || 'None'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="wizard-nav">
+                <button className="button ghost" type="button" onClick={() => setCurrentStep(3)}>
+                  Back
+                </button>
+                <button className="button primary" type="button" onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? 'Processing...' : 'Confirm & Pay with Payflex'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="booking-card">
         <div className="booking-photo">
@@ -497,8 +552,13 @@ function BookNow() {
           <a className="button ghost full" href="/adventures">
             Pick an adventure first
           </a>
-          <button className="button primary full" type="button">
-            Confirm &amp; Pay with Payflex
+          <button
+            className="button primary full"
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit || isSubmitting || currentStep < 4}
+          >
+            {isSubmitting ? 'Processing...' : 'Confirm & Pay with Payflex'}
           </button>
         </div>
       </div>
