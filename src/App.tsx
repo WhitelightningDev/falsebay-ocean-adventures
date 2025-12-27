@@ -1,5 +1,3 @@
-import './App.css'
-
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
@@ -13,9 +11,9 @@ import Adventures from './pages/Adventures'
 function App() {
   return (
     <BrowserRouter>
-      <div className="app">
+      <div className="min-h-screen bg-slate-50 text-slate-900">
         <NavBar />
-        <main>
+        <main className="flex flex-col gap-16 px-4 pb-16 pt-28 sm:px-6 lg:px-10">
           <Routes>
             <Route
               path="/"
@@ -34,12 +32,13 @@ function App() {
         </main>
         <Footer />
       </div>
-      <div className="map-preload" aria-hidden="true">
+      <div className="absolute h-0 w-0 overflow-hidden opacity-0 pointer-events-none" aria-hidden="true">
         <iframe
           title="Preload map for Gordon's Bay Harbour"
           src="https://maps.google.com/maps?q=Gordon%27s%20Bay%20Harbour&t=&z=15&ie=UTF8&iwloc=&output=embed"
           loading="eager"
           tabIndex={-1}
+          className="h-0 w-0 border-0"
         />
       </div>
     </BrowserRouter>
