@@ -13,7 +13,7 @@ function BookNow() {
   const location = useLocation()
   const adventures = useMemo(
     () => [
-      { slug: 'jetski', name: "Jet Ski Adventure - Gordon's Bay", duration: '30 or 60 mins', price: 'From R950 per rider', summary: 'Solo or tandem rides with gear and a quick safety brief.' },
+      { slug: 'jetski', name: "Jet Ski Adventure - Gordon's Bay", duration: '30 or 60 mins', price: 'From R1700 per rider', summary: 'Solo or tandem rides with gear and a quick safety brief.' },
       { slug: 'charter', name: 'Private Boat Charter', duration: '1-4 hours', price: 'From R3,200 per boat', summary: 'Skippered cruises for couples, friends, or teams at your pace.' },
       { slug: 'marine-life', name: 'Marine Life Trip', duration: '1.5-3 hours', price: 'From R1,450 pp', summary: 'Wildlife-focused routes to spot dolphins, seals, and seasonal whales.' },
       { slug: 'harbour-cruise', name: 'Harbour & Coastline Cruise', duration: '1-2 hours', price: 'From R2,200 per cruise', summary: 'Relaxed harbour laps and coastline views with snacks onboard.' },
@@ -39,6 +39,10 @@ function BookNow() {
   const extrasOptions = useMemo(
     () => [
       { key: 'gopro', label: 'GoPro footage of your ride', price: 'R300', quantity: false },
+      { key: 'jetski-30-1', label: 'Add 1 jet ski • 30 minutes', price: 'R1700', quantity: false },
+      { key: 'jetski-30-2', label: 'Add 2 jet skis • 30 minutes', price: 'R3100', quantity: false },
+      { key: 'jetski-60-1', label: 'Add 1 jet ski • 1 hour', price: 'R2200', quantity: false },
+      { key: 'jetski-60-2', label: 'Add 2 jet skis • 1 hour', price: 'R5100', quantity: false },
       { key: 'extra-passenger', label: 'Extra passenger', price: 'R500', quantity: true },
     ],
     [],
@@ -116,6 +120,10 @@ function BookNow() {
     setCurrentStep(2)
   }
 
+  const handleNextFromAdventure = () => {
+    if (validateStep(1)) setCurrentStep(2)
+  }
+
   const handleStepClick = (stepNumber: number) => {
     if (stepNumber < currentStep) {
       setCurrentStep(stepNumber)
@@ -148,10 +156,11 @@ function BookNow() {
 
   const steps = [
     { number: 1, title: 'Choose Adventure', description: 'Pick jet skis, a charter, or a wildlife route.' },
-    { number: 2, title: 'Date & Time', description: 'Select your slot - sunrise glass, mid-day, or sunset.' },
-    { number: 3, title: 'Guests & Details', description: 'Add your group size, extras, and any notes.' },
-    { number: 4, title: 'Review & Payment', description: 'Confirm the plan and secure your spot online.' },
+    { number: 2, title: 'Date & Time', description: 'Select the best slot for your crew.' },
+    { number: 3, title: 'Guests & Details', description: 'Add your group size, contact, and extras.' },
+    { number: 4, title: 'Review & Payment', description: 'Check everything and confirm with Payflex.' },
   ]
+  const progress = Math.min((currentStep / steps.length) * 100, 100)
 
   return (
     <section id="book" className="py-14">
@@ -164,16 +173,31 @@ function BookNow() {
           </p>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-start gap-3 overflow-x-auto">
+        <div className="mb-4">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <span>
+              Step {currentStep} of {steps.length}
+            </span>
+            <span>{Math.round(progress)}% ready</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-sky-800 to-cyan-500 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step) => {
             const status = currentStep === step.number ? 'active' : currentStep > step.number ? 'complete' : 'upcoming'
             return (
               <button
                 type="button"
                 key={step.number}
-                className={`flex min-w-[220px] items-center gap-3 rounded-xl border px-4 py-3 text-left shadow-sm transition ${
+                className={`flex h-full flex-col gap-2 rounded-2xl border px-4 py-3 text-left shadow-sm transition ${
                   status === 'active'
-                    ? 'border-sky-600 bg-sky-50'
+                    ? 'border-sky-600 bg-sky-50 shadow-md'
                     : status === 'complete'
                       ? 'border-slate-200 bg-white'
                       : 'border-slate-200 bg-white text-slate-500'
@@ -181,19 +205,24 @@ function BookNow() {
                 onClick={() => handleStepClick(step.number)}
                 disabled={status === 'upcoming'}
               >
-                <span
-                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
-                    status === 'active'
-                      ? 'bg-gradient-to-r from-sky-800 to-cyan-500 text-white'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
-                >
-                  {status === 'complete' ? '✓' : step.number}
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-slate-900">{step.title}</span>
-                  <span className="block text-xs text-slate-500">{step.description}</span>
-                </span>
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
+                      status === 'active'
+                        ? 'bg-gradient-to-r from-sky-800 to-cyan-500 text-white'
+                        : 'bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    {status === 'complete' ? '✓' : step.number}
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                    {status === 'active' ? 'In progress' : status === 'complete' ? 'Done' : 'Next'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{step.title}</p>
+                  <p className="text-xs text-slate-500">{step.description}</p>
+                </div>
               </button>
             )
           })}
@@ -206,7 +235,7 @@ function BookNow() {
                 <div className="space-y-1">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 1</p>
                   <h3 className="text-xl font-semibold text-slate-900">Choose Adventure</h3>
-                  <p className="text-sm text-slate-600">Select an option to move to date and time.</p>
+                  <p className="text-sm text-slate-600">Select an option to move to date and time. You can change later.</p>
                   {errors.adventure ? <p className="text-sm text-rose-600">{errors.adventure}</p> : null}
                 </div>
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -224,9 +253,23 @@ function BookNow() {
                       </div>
                       <p className="text-sm text-slate-600">{adventure.summary}</p>
                       <p className="text-sm font-semibold text-sky-800">{adventure.price}</p>
-                      <p className="text-sm text-slate-500">Tap to select</p>
+                      <p className="text-sm text-slate-500">{selectedAdventure.slug === adventure.slug ? 'Selected' : 'Tap to select'}</p>
                     </article>
                   ))}
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 px-3 py-3 text-xs font-semibold text-slate-700">
+                  <span className="rounded-full bg-white px-3 py-1 text-slate-800">Licensed skipper + guide</span>
+                  <span className="rounded-full bg-white px-3 py-1 text-slate-800">Gear and safety brief included</span>
+                  <span className="rounded-full bg-white px-3 py-1 text-slate-800">Flexible reschedule if weather shifts</span>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-800 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-md"
+                    type="button"
+                    onClick={handleNextFromAdventure}
+                  >
+                    Next: date &amp; time
+                  </button>
                 </div>
               </div>
             )}
@@ -239,6 +282,10 @@ function BookNow() {
                   <p className="text-sm text-slate-600">
                     Selected: <strong>{selectedAdventure.name}</strong>. Share your preferred slot (sunrise, mid-day, sunset). We will confirm the closest available time.
                   </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">Duration picks are adjustable</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">We text you to lock in the final time</span>
+                  </div>
                 </div>
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
@@ -323,6 +370,10 @@ function BookNow() {
                   <p className="text-sm text-slate-600">Add your group size and any extras (snacks, drinks, photo support).</p>
                 </div>
                 <div className="mt-4 space-y-4">
+                  <div className="rounded-xl bg-slate-50 p-4">
+                    <p className="text-sm font-semibold text-slate-900">Lead guest</p>
+                    <p className="text-xs text-slate-600">We only use this to confirm your booking and send updates.</p>
+                  </div>
                   <div className="grid gap-3 md:grid-cols-2">
                     <label className="space-y-1 text-sm font-semibold text-slate-800">
                       Full name*
@@ -386,20 +437,30 @@ function BookNow() {
                       {errors.guests ? <p className="text-sm text-rose-600">{errors.guests}</p> : null}
                     </label>
                   </div>
-                  <label className="space-y-1 text-sm font-semibold text-slate-800">
-                    Special requests (optional)
-                    <textarea
-                      className={`${inputBase} min-h-[100px]`}
-                      value={guestForm.notes}
-                      onChange={(e) => setGuestForm({ ...guestForm, notes: e.target.value })}
-                      rows={3}
-                      placeholder="Any dietary needs, celebrations, or other notes?"
-                    />
-                  </label>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="space-y-1 text-sm font-semibold text-slate-800">
+                      Special requests (optional)
+                      <textarea
+                        className={`${inputBase} min-h-[100px]`}
+                        value={guestForm.notes}
+                        onChange={(e) => setGuestForm({ ...guestForm, notes: e.target.value })}
+                        rows={3}
+                        placeholder="Any dietary needs, celebrations, or other notes?"
+                      />
+                    </label>
+                    <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
+                      <p className="font-semibold text-slate-900">Quick checklist</p>
+                      <ul className="mt-2 space-y-1">
+                        <li>Share your best contact for weather updates.</li>
+                        <li>Include riders plus spectators in your guest count.</li>
+                        <li>Add notes if you want snacks, drinks, or a surprise setup.</li>
+                      </ul>
+                    </div>
+                  </div>
 
                   <div className="space-y-2">
                     <h4 className="text-lg font-semibold text-slate-900">Extras / Add-ons</h4>
-                    <p className="text-sm text-slate-600">Add what you need to make it special.</p>
+                    <p className="text-sm text-slate-600">Add jet skis, footage, or extra passengers to your plan.</p>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {extrasOptions.map((extra) => {
                         const state = extras[extra.key]
@@ -498,18 +559,74 @@ function BookNow() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-wrap gap-3">
-                    <button className="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-100" type="button" onClick={() => setCurrentStep(3)}>
-                      Back
-                    </button>
-                    <button
-                      className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-800 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-md disabled:opacity-50"
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting || !canSubmit}
-                    >
-                      {isSubmitting ? 'Processing...' : 'Confirm & Pay with Payflex'}
-                    </button>
+                  <div className="space-y-4">
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="rounded-xl border border-slate-200 p-3 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold text-slate-900">Adventure</p>
+                          <button className="text-xs font-semibold text-sky-700" type="button" onClick={() => setCurrentStep(1)}>
+                            Edit
+                          </button>
+                        </div>
+                        <p className="text-sm text-slate-700">{selectedAdventure.name}</p>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 p-3 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold text-slate-900">Date &amp; time</p>
+                          <button className="text-xs font-semibold text-sky-700" type="button" onClick={() => setCurrentStep(2)}>
+                            Edit
+                          </button>
+                        </div>
+                        <p className="text-sm text-slate-700">
+                          {selectedDate || 'Choose a date'} {selectedTime ? `at ${selectedTime}` : ''}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 p-3 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold text-slate-900">Guests &amp; duration</p>
+                          <button className="text-xs font-semibold text-sky-700" type="button" onClick={() => setCurrentStep(3)}>
+                            Edit
+                          </button>
+                        </div>
+                        <p className="text-sm text-slate-700">
+                          {guestForm.guests || 'Add guests'} guests • {selectedDuration}
+                        </p>
+                        <p className="text-sm text-slate-700">
+                          Extras:{' '}
+                          {extrasOptions
+                            .filter((extra) => extras[extra.key]?.selected)
+                            .map((extra) => `${extra.label}${extra.quantity ? ` x${extras[extra.key].quantity}` : ''}`)
+                            .join(', ') || 'None'}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 p-3 shadow-sm">
+                        <p className="text-sm font-semibold text-slate-900">Lead guest contact</p>
+                        <p className="text-sm text-slate-700">{guestForm.fullName || 'Name needed'}</p>
+                        <p className="text-sm text-slate-700">{guestForm.email || 'Email needed'}</p>
+                        <p className="text-sm text-slate-700">{guestForm.phone || 'Mobile needed'}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-sky-100 bg-sky-50 p-4 text-sm text-slate-700">
+                      <p className="font-semibold text-slate-900">What happens after you confirm</p>
+                      <ul className="mt-2 space-y-1">
+                        <li>We hold your slot and message you on WhatsApp/email to finalize the exact time.</li>
+                        <li>Secure your booking with Payflex or pay on arrival if arranged with the crew.</li>
+                        <li>If weather shifts, we reschedule you quickly or offer a refund.</li>
+                      </ul>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <button className="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-100" type="button" onClick={() => setCurrentStep(3)}>
+                        Back
+                      </button>
+                      <button
+                        className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-800 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-md disabled:opacity-50"
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting || !canSubmit}
+                      >
+                        {isSubmitting ? 'Processing...' : 'Confirm & Pay with Payflex'}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
